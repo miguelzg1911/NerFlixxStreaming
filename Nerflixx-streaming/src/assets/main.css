@@ -1,0 +1,13 @@
+:root {
+  --nerflixx-red: #E50914;
+  --nerflixx-black: #141414;
+  --nerflixx-dark-gray: #333333;
+  --nerflixx-light-gray: #737373;
+}
+
+body {
+  margin: 0;
+  font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  background-color: white;
+  -webkit-font-smoothing: antialiased;
+}
