@@ -1,6 +1,6 @@
 <template>
   <div class="page-wrapper">
-    <NerNavbar>
+    <<NerNavbar minimal>
       <template #right>
         <router-link to="/login" class="login-link">Iniciar sesión</router-link>
       </template>

@@ -13,7 +13,7 @@ export const authService = {
     },
 
     async getPlans(): Promise<Plan[]> {
-        const response = await api.get<Plan[]>('/subscriptions/plans');
+        const response = await api.get<Plan[]>('/subscription/plans');
         return response.data;
     }
 };

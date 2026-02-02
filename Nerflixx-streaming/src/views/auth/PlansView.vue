@@ -1,10 +1,10 @@
 <template>
   <div class="page-wrapper">
-    <NerNavbar>
-      <template #right>
-        <button @click="logoutTemp" class="logout-link">Cerrar sesión</button>
-      </template>
-    </NerNavbar>
+      <NerNavbar minimal>
+        <template #right>
+          <button @click="logoutTemp" class="logout-link">Cerrar sesión</button>
+        </template>
+      </NerNavbar>
 
     <main class="plans-body">
       <div class="plans-content">
@@ -44,7 +44,7 @@
               </div>
               <div class="info-row">
                 <span>Resolucion Maxima</span>
-                <span>{{ plan.maxResolution }} pantallas</span>
+                <span>{{ plan.maxResolution }} Resoluciones</span>
               </div>
             </div>
           </div>

@@ -1,5 +1,4 @@
 import { createRouter, createWebHistory } from 'vue-router'
-
 import LoginView from '../views/auth/LoginView.vue'
 
 const router = createRouter({
@@ -8,7 +7,7 @@ const router = createRouter({
     {
       path: '/',
       name: 'home',
-      component: () => import('../views/browse/HomeView.vue'),
+      component: () => import('@/views/browse/HomeView.vue'),
       meta: { requiresAuth: true } 
     },
     {
@@ -36,26 +35,42 @@ const router = createRouter({
       path: '/watch/:id',
       name: 'watch',
       component: () => import('../views/browse/WatchView.vue'),
-      props: true
+      props: true,
+      meta: { requiresAuth: true }
     },
+ 
     {
       path: '/admin',
       name: 'admin',
       component: () => import('../views/admin/AdminDashboardView.vue'),
-      meta: { requiresAuth: true, requiresAdmin: true }
+      meta: { requiresAuth: true }
+    },
+    {
+      path: '/admin/upload',
+      name: 'upload-content',
+      component: () => import('../views/admin/UploadContentView.vue'),
+      meta: { requiresAuth: true }
+    },
+    {
+      path: '/:pathMatch(.*)*',
+      redirect: '/'
     }
   ]
 })
 
-
 router.beforeEach((to, from, next) => {
-  const isAuthenticated = !!localStorage.getItem('token');
+  const token = localStorage.getItem('token');
+  const isAuthenticated = !!token;
 
   if (to.meta.requiresAuth && !isAuthenticated) {
-    next({ name: 'login' });
-  } else {
-    next();
+    return next({ name: 'login' });
   }
+
+  if (isAuthenticated && (to.name === 'login' || to.name === 'register')) {
+    return next({ name: 'home' });
+  }
+
+  next();
 });
 
 export default router

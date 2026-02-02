@@ -1,20 +1,12 @@
 <template>
-  <div class="home-container">
-    <NerNavbarPro />
+  <div class="home-wrapper">
+    <NerNavbar />
     
-    <Billboard v-if="featuredMovie" :movie="featuredMovie" />
-
-    <section class="content-rows">
-      <MovieRow 
-        v-if="myList.length > 0" 
-        title="Mi Lista" 
-        :manualMovies="myList" 
-      />
-
+    <main class="content-area">
       <MovieRow title="Tendencias" fetchType="trending" />
-      <MovieRow title="Acción" fetchType="genre" genre="Action" />
-      <MovieRow title="Comedia" fetchType="genre" genre="Comedy" />
-    </section>
+      <MovieRow title="Acción" fetchType="Action" />
+      <MovieRow title="Comedia" fetchType="Comedy" />
+    </main>
 
     <NerFooter />
   </div>
@@ -36,13 +28,11 @@ const profileId = localStorage.getItem('selectedProfileId') || '';
 
 onMounted(async () => {
   try {
-    // 1. Cargar tendencias para el Billboard
     const trending = await contentService.getTrending();
     if (trending.length > 0) {
       featuredMovie.value = trending[0] as Content;
     }
 
-    // 2. Cargar Mi Lista si hay un perfil activo
     if (profileId) {
       myList.value = await myListService.getMyList(profileId);
     }
@@ -53,6 +43,18 @@ onMounted(async () => {
 </script>
 
 <style scoped>
-.home-container { background-color: #141414; min-height: 100vh; }
-.content-rows { margin-top: -8vw; position: relative; z-index: 20; padding-bottom: 40px; }
+.home-wrapper {
+  background-color: #141414;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.content-area {
+  flex: 1;
+  padding-top: 70px; 
+  display: flex;
+  flex-direction: column;
+  gap: 40px;
+}
 </style>
