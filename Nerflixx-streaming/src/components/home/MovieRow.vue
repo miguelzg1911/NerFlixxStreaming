@@ -43,6 +43,7 @@ const props = defineProps<{
 }>();
 
 const apiMovies = ref<Content[]>([]);
+const loading = ref(true);
 
 const displayMovies = computed(() => {
   return props.manualMovies ? props.manualMovies : apiMovies.value;
@@ -54,18 +55,24 @@ const handleImageError = (e: Event) => {
 };
 
 onMounted(async () => {
-  if (!props.manualMovies && props.fetchType) {
-    try {
-      if (props.fetchType === 'trending') {
-        apiMovies.value = await contentService.getTrending();
-      } else if (props.fetchType === 'genre' && props.genre) {
-        apiMovies.value = await contentService.getContentByGenre(props.genre);
-      } else {
-        apiMovies.value = await contentService.getAllContent();
-      }
-    } catch (error) {
-      console.error(`Error en fila ${props.title}:`, error);
+  try {
+    loading.value = true;
+    let data;
+
+    if (props.fetchType === 'trending') {
+      data = await contentService.getTrending();
+    } else if (props.fetchType === 'genre' && props.genre) {
+      data = await contentService.getContentByGenre(props.genre); 
+    } else {
+      data = await contentService.getAllContent();
     }
+
+    apiMovies.value = Array.isArray(data) ? data : [];
+  } catch (error) {
+    console.error(`Error en MovieRow (${props.title}):`, error);
+    apiMovies.value = []; 
+  } finally {
+    loading.value = false;
   }
 });
 </script>
