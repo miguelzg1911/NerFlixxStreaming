@@ -3,6 +3,7 @@ export interface AuthResponse {
     refreshToken?: string;
     username: string;
     userId: string;
+    role: string;
 }
 
 export interface RegisterRequest {

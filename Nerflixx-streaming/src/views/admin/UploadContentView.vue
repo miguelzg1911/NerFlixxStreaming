@@ -1,130 +1,313 @@
 <template>
-  <div class="upload-section">
-    <h3>Multimedia</h3>
-    <input type="file" @change="handleFileChange" accept="image/*" class="file-input" />
-    <NerInput v-model="form.urlVideo" placeholder="URL del Video" theme="dark" />
+  <div class="upload-container">
+    <div class="header-actions">
+      <button class="back-btn" @click="$router.push('/admin')">
+        <i class="fas fa-arrow-left"></i> Volver al Panel
+      </button>
+      <h2 class="section-title">Subir Nuevo Contenido</h2>
+    </div>
+
+    <div class="upload-grid">
+      <div class="upload-section">
+        <h3 class="subsection-title">Multimedia</h3>
+        
+        <div 
+          class="preview-box" 
+          :style="{ backgroundImage: imagePreview ? `url(${imagePreview})` : 'none' }"
+        >
+          <span v-if="!imagePreview">Vista previa de miniatura (16:9)</span>
+        </div>
+        
+        <label class="custom-file-upload">
+          <input type="file" @change="handleFileChange" accept="image/*" />
+          <i class="fas fa-image"></i> {{ selectedFile ? 'Cambiar Imagen' : 'Seleccionar Miniatura' }}
+        </label>
+
+        <div class="input-group-spacing">
+          <label class="input-label">URL del Video (Streaming)</label>
+          <input 
+            v-model="form.urlVideo" 
+            placeholder="https://servidor-video.com/pelicula.mp4" 
+            class="ner-input-dark" 
+          />
+        </div>
+      </div>
+
+      <div class="upload-section">
+        <h3 class="subsection-title">Información General</h3>
+        
+        <div class="form-group">
+          <label class="input-label">Título</label>
+          <input v-model="form.title" placeholder="Ej: El Camino" class="ner-input-dark" />
+        </div>
+        
+        <div class="form-group">
+          <label class="input-label">Descripción</label>
+          <textarea 
+            v-model="form.description" 
+            placeholder="Escribe una breve sinopsis..." 
+            class="ner-textarea"
+          ></textarea>
+        </div>
+
+        <div class="form-row">
+          <div class="input-group">
+            <label class="input-label">Año de Estreno</label>
+            <input type="number" v-model="form.releaseYear" class="ner-input-dark" />
+          </div>
+          
+          <div class="input-group">
+            <label class="input-label">Tipo de Contenido</label>
+            <select v-model="form.contentType" class="ner-select">
+              <option :value="0">🎬 Película</option>
+              <option :value="1">📺 Serie</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="genres-container">
+          <h4 class="input-label">Géneros (Selecciona todos los que apliquen)</h4>
+          <div class="genres-grid">
+            <label v-for="g in availableGenres" :key="g" class="genre-chip">
+              <input type="checkbox" :value="g" v-model="selectedGenres" />
+              <span class="chip-text">{{ g }}</span>
+            </label>
+          </div>
+        </div>
+
+        <button 
+          @click="handleUpload" 
+          class="submit-btn" 
+          :disabled="loading"
+        >
+          <i v-if="loading" class="fas fa-spinner fa-spin"></i>
+          {{ loading ? 'SUBIENDO...' : 'PUBLICAR EN CATÁLOGO' }}
+        </button>
+      </div>
+    </div>
   </div>
-  </template>
+</template>
 
 <script setup lang="ts">
 import { ref } from 'vue';
+import { useRouter } from 'vue-router';
 import { adminService } from '@/services/adminService';
 
+const router = useRouter();
+const loading = ref(false);
 const selectedFile = ref<File | null>(null);
+const imagePreview = ref<string | null>(null);
+
+const availableGenres = ['Action', 'Comedy', 'Drama', 'Horror', 'Sci-Fi', 'Romance', 'Thriller', 'Documentary'];
+const selectedGenres = ref<string[]>([]);
+
 const form = ref({
   title: '',
   description: '',
-  releaseYear: 2024,
-  contentType: 0, 
+  releaseYear: 2026,
+  contentType: 0,
   urlVideo: ''
 });
 
 const handleFileChange = (event: any) => {
-  selectedFile.value = event.target.files[0];
+  const file = event.target.files[0];
+  if (file) {
+    selectedFile.value = file;
+    imagePreview.value = URL.createObjectURL(file);
+  }
 };
 
 const handleUpload = async () => {
+  if (!form.value.title || !selectedFile.value || selectedGenres.value.length === 0) {
+    alert("Debes completar el título, la imagen y al menos un género.");
+    return;
+  }
+
+  loading.value = true;
   const data = new FormData();
+
   data.append('Title', form.value.title);
   data.append('Description', form.value.description);
   data.append('ReleaseYear', form.value.releaseYear.toString());
   data.append('ContentType', form.value.contentType.toString());
   data.append('UrlVideo', form.value.urlVideo);
-  
-  if (selectedFile.value) {
-    data.append('ImageFile', selectedFile.value);
-  }
+
+  data.append('ImageFile', selectedFile.value);
+
+  selectedGenres.value.forEach(genre => {
+    data.append('Genres', genre);
+  });
 
   try {
     await adminService.createContent(data);
-    alert("¡Subido con éxito!");
+    alert("¡Contenido publicado con éxito!");
+    router.push('/admin'); 
   } catch (error) {
-    alert("Error al subir. Revisa que el backend acepte FormData.");
+    console.error("Error en la subida:", error);
+    alert("Error al subir el contenido. Revisa la consola.");
+  } finally {
+    loading.value = false;
   }
 };
 </script>
 
 <style scoped>
-.upload-container { 
-    background: #141414; 
-    min-height: 100vh; 
-    padding: 40px; 
-    color: white; 
+.upload-container {
+  background-color: #141414;
+  min-height: 100vh;
+  padding: 100px 4% 40px;
+  color: white;
 }
 
-.header-actions { 
-    display: flex; 
-    align-items: center; 
-    gap: 20px; 
-    margin-bottom: 40px; 
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  margin-bottom: 30px;
 }
 
-.back-btn { 
-    background: transparent; 
-    border: 1px solid #444; 
-    color: white; 
-    padding: 8px 15px; 
-    cursor: pointer; 
+.back-btn {
+  background: transparent;
+  border: 1px solid #444;
+  color: white;
+  padding: 8px 16px;
+  cursor: pointer;
+  border-radius: 4px;
+  transition: 0.3s;
 }
 
-.upload-grid { 
-    display: grid; 
-    grid-template-columns: 1fr 1.5fr; 
-    gap: 40px; 
+.back-btn:hover {
+  background: #333;
+  border-color: white;
 }
 
-.upload-section { 
-    background: #181818; 
-    padding: 25px; 
-    border-radius: 8px; 
+.upload-grid {
+  display: grid;
+  grid-template-columns: 1fr 1.5fr;
+  gap: 40px;
 }
 
-.preview-box { 
-    width: 100%; 
-    aspect-ratio: 16/9; 
-    background: #222; 
-    margin-bottom: 20px; 
-    display: flex; 
-    align-items: center; 
-    justify-content: center;
-    background-size: cover;
-    background-position: center;
-    border: 1px dashed #444;
+.upload-section {
+  background-color: #181818;
+  padding: 30px;
+  border-radius: 8px;
 }
 
-.ner-textarea { 
-    width: 100%; 
-    height: 100px; 
-    background: #222; 
-    border: 1px solid #333; 
-    color: white; 
-    padding: 10px; 
-    margin-bottom: 15px; 
-    border-radius: 4px;
+.subsection-title {
+  margin-top: 0;
+  margin-bottom: 20px;
+  border-bottom: 1px solid #333;
+  padding-bottom: 10px;
 }
 
-.form-row { 
-    display: flex; 
-    gap: 20px; 
-    align-items: center; 
-    margin-bottom: 20px; 
+.preview-box {
+  width: 100%;
+  aspect-ratio: 16/9;
+  background-color: #222;
+  background-size: cover;
+  background-position: center;
+  border: 2px dashed #444;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 15px;
+  color: #666;
 }
 
-.ner-select { 
-    flex: 1;
-    padding: 12px; 
-    background: #222; 
-    color: white; 
-    border: 1px solid #333; 
+.custom-file-upload {
+  display: block;
+  text-align: center;
+  background: #e50914;
+  padding: 12px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: bold;
 }
 
-.toggle-group { 
-    display: flex; 
-    gap: 10px; 
-    align-items: center; 
+.custom-file-upload input { display: none; }
+
+.input-label {
+  display: block;
+  font-size: 0.9rem;
+  color: #aaa;
+  margin-bottom: 8px;
 }
 
-.submit-btn { 
-    margin-top: 20px; 
+.ner-input-dark, .ner-select, .ner-textarea {
+  width: 100%;
+  background: #2f2f2f;
+  border: 1px solid #444;
+  color: white;
+  padding: 12px;
+  border-radius: 4px;
+  margin-bottom: 20px;
+  box-sizing: border-box;
 }
+
+.ner-textarea { height: 100px; resize: none; }
+
+.form-row {
+  display: flex;
+  gap: 20px;
+}
+
+.input-group { flex: 1; }
+
+.genres-container {
+  margin-top: 10px;
+  margin-bottom: 30px;
+}
+
+.genres-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.genre-chip {
+  cursor: pointer;
+}
+
+.genre-chip input { display: none; }
+
+.chip-text {
+  display: inline-block;
+  padding: 6px 15px;
+  background: #333;
+  border-radius: 20px;
+  font-size: 0.85rem;
+  border: 1px solid transparent;
+  transition: 0.3s;
+}
+
+.genre-chip input:checked + .chip-text {
+  background: #e50914;
+  border-color: white;
+}
+
+.submit-btn {
+  width: 100%;
+  background: white;
+  color: black;
+  border: none;
+  padding: 15px;
+  font-weight: bold;
+  font-size: 1rem;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+.submit-btn:hover:not(:disabled) {
+  background: #e50914;
+  color: white;
+}
+
+.submit-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.input-group-spacing { margin-top: 25px; }
 </style>

@@ -9,11 +9,11 @@ export const profileService = {
     },
 
     // (Opcional por ahora) Crear un perfil nuevo
-    async createProfile(name: string, isChild: boolean): Promise<Profile> {
+    async createProfile(name: string, isKids: boolean): Promise<Profile> {
         const response = await api.post<Profile>('/Profile', {
             name, 
-            isKids,
-            languaje: 'es' 
+            isKids: isKids || false,
+            language: 'es'
         });
         return response.data;
     }

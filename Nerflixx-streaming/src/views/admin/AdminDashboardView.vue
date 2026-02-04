@@ -21,7 +21,7 @@
         <tbody>
           <tr v-for="item in catalog" :key="item.id">
             <td>{{ item.title }}</td>
-            <td>{{ item.genres && item.genres.length > 0 ? item.genres[0] : 'Sin género' }}</td>
+            <td>{{ Array.isArray(item.genres) && item.genres.length > 0 ? item.genres.join(', ') : item.genres || 'Sin género' }}</td>
             <td>{{ Number(item.contentType) === 0 ? '🎬 Película' : '📺 Serie' }}</td>
             <td>
               <button class="edit-btn">Editar</button>

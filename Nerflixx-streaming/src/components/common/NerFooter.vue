@@ -1,5 +1,5 @@
 <template>
-  <footer class="ner-footer">
+  <footer :class="['ner-footer', { 'footer-dark': isDark }]">
     <div class="footer-content">
       <p class="footer-top">¿Preguntas? Llama al 01-800-917-1564</p>
       <ul class="footer-links">
@@ -21,13 +21,35 @@
   </footer>
 </template>
 
+<script setup lang="ts">
+import { computed } from 'vue';
+import { useRoute } from 'vue-router';
+
+const route = useRoute();
+
+const isDark = computed(() => {
+  return route.path === '/' || route.path === '/login' || route.path.includes('watch');
+});
+</script>
+
 <style scoped>
 .ner-footer {
-  background: #f3f3f3; /* Fondo gris claro para el flujo de registro */
-  padding: 30px 0;
+  background: #f3f3f3;
+  padding: 50px 0 30px;
   color: #737373;
-  font-size: 0.9rem;
+  font-size: 0.85rem;
   border-top: 1px solid #e6e6e6;
+  width: 100%;
+}
+
+.footer-dark {
+  background: #141414 !important;
+  border-top: 1px solid #333;
+  color: #737373;
+}
+
+.footer-dark .footer-links a {
+  color: #737373;
 }
 
 .footer-content {
@@ -40,13 +62,18 @@
   margin-bottom: 30px;
 }
 
+.footer-top:hover {
+  text-decoration: underline;
+  cursor: pointer;
+}
+
 .footer-links {
   display: grid;
-  grid-template-columns: repeat(4, 1fr); /* 4 columnas estilo Netflix */
+  grid-template-columns: repeat(4, 1fr);
   gap: 15px;
   list-style: none;
   padding: 0;
-  margin: 0 0 20px 0;
+  margin: 0 0 40px 0;
 }
 
 .footer-links a {
@@ -59,8 +86,7 @@
 }
 
 .footer-country {
-  margin-top: 20px;
-  font-size: 0.8rem;
+  font-size: 0.75rem;
 }
 
 @media (max-width: 740px) {

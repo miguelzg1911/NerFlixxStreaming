@@ -1,7 +1,7 @@
 <template>
   <div class="login-wrapper">
     <nav class="login-nav">
-      <h1 class="logo">NERFLIXX</h1>
+      <h1 class="logo" @click="$router.push('/')">NERFLIXX</h1>
     </nav>
 
     <main class="login-body">
@@ -14,12 +14,14 @@
             placeholder="Email o número de teléfono" 
             type="email" 
             theme="dark" 
+            class="input-group"
           />
           <NerInput 
             v-model="password" 
             placeholder="Contraseña" 
             type="password" 
             theme="dark" 
+            class="input-group"
           />
           
           <p v-if="error" class="error-msg">{{ error }}</p>
@@ -48,7 +50,7 @@
       </div>
     </main>
 
-    <NerFooter class="login-footer" />
+    <NerFooter class="login-footer-container" />
   </div>
 </template>
 
@@ -76,11 +78,14 @@ const handleLogin = async () => {
       password: password.value
     });
 
-    // Guardamos el JWT y el rol si es necesario
     localStorage.setItem('token', response.token);
-    
-    // Una vez logueado, vamos a la selección de perfiles
-    router.push('/profiles');
+    localStorage.setItem('userRole', response.role);
+
+    if (response.role === 'Admin') {
+      router.push('/admin');
+    } else {
+      router.push('/profiles');
+    }
   } catch (err: any) {
     error.value = 'Contraseña incorrecta o usuario no encontrado.';
     console.error(err);
@@ -94,8 +99,9 @@ const handleLogin = async () => {
 .login-wrapper {
   min-height: 100vh;
   background: linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.5)), 
-              url('https://assets.nflxext.com/ffe/siteui/vlv3/f841d4c7-10e1-40af-bcae-07a3f8dc141a/f6ed3b94-94d9-4fa5-a75d-68b4ef207360/US-en-20220502-popsignuptwoweeks-perspective_alpha_website_medium.jpg');
+              url('https://assets.nflxext.com/ffe/siteui/vlv3/7ca5b37a-b320-4f31-91d0-3b11603c2cc3/d7455850-2522-4414-b490-50d4814d2325/CO-es-20240326-popsignuptwoweeks-perspective_alpha_website_large.jpg');
   background-size: cover;
+  background-position: center;
   display: flex;
   flex-direction: column;
 }
@@ -105,26 +111,28 @@ const handleLogin = async () => {
 }
 
 .logo { 
-  color: var(--nerflixx-red); 
-  font-size: 2.5rem; 
+  color: #e50914; 
+  font-size: 2.8rem; 
   font-weight: bold; 
+  cursor: pointer;
 }
 
 .login-body {
   flex: 1; 
   display: flex; 
   justify-content: center; 
-  align-items: flex-start; 
-  padding-top: 20px; 
+  align-items: flex-start;
+  padding: 20px 0 80px;
 }
 
 .login-box {
   background: rgba(0, 0, 0, 0.75);
-  padding: 60px 68px 40px;
+  padding: 60px 68px;
   width: 100%;
   max-width: 450px;
   border-radius: 4px;
   color: white;
+  box-sizing: border-box;
 }
 
 h2 { 
@@ -133,9 +141,15 @@ h2 {
   font-weight: bold; 
 }
 
+.input-group {
+  margin-bottom: 16px;
+}
+
 .login-btn { 
   margin-top: 24px; 
-  font-size: 1.1rem; 
+  width: 100%;
+  font-weight: bold;
+  height: 50px;
 }
 
 .error-msg {
@@ -143,26 +157,27 @@ h2 {
   padding: 10px;
   border-radius: 4px;
   font-size: 0.9rem;
-  margin-bottom: 15px;
+  margin: 15px 0;
 }
 
 .login-help {
   display: flex;
   justify-content: space-between;
   color: #b3b3b3;
-  font-size: 0.8rem;
-  margin-top: 10px;
+  font-size: 0.85rem;
+  margin-top: 15px;
 }
 
 .remember-me { 
   display: flex; 
   align-items: center; 
-  gap: 5px; 
+  gap: 8px; 
 }
 
 .login-footer-info { 
-  margin-top: 50px; 
+  margin-top: 60px; 
   color: #737373; 
+  font-size: 1rem;
 }
 
 .login-footer-info a { 
@@ -176,13 +191,13 @@ h2 {
 
 .captcha-text { 
   font-size: 0.8rem; 
-  margin-top: 15px; 
+  margin-top: 15px;
+  line-height: 1.3;
 }
 
-/* Ajuste del footer para que sea oscuro en el login */
-.login-footer {
+.login-footer-container {
   background: rgba(0, 0, 0, 0.75) !important;
-  border: none !important;
   color: #737373 !important;
-}
+  padding: 30px 0
+};
 </style>

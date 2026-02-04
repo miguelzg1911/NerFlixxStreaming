@@ -43,13 +43,13 @@ const router = createRouter({
       path: '/admin',
       name: 'admin',
       component: () => import('../views/admin/AdminDashboardView.vue'),
-      meta: { requiresAuth: true }
+      meta: { requiresAuth: true, requiresAdmin: true }
     },
     {
       path: '/admin/upload',
       name: 'upload-content',
       component: () => import('../views/admin/UploadContentView.vue'),
-      meta: { requiresAuth: true }
+      meta: { requiresAuth: true, requiresAdmin: true }
     },
     {
       path: '/:pathMatch(.*)*',
@@ -60,6 +60,7 @@ const router = createRouter({
 
 router.beforeEach((to, from, next) => {
   const token = localStorage.getItem('token');
+  const role = localStorage.getItem('userRole');
   const isAuthenticated = !!token;
 
   if (to.meta.requiresAuth && !isAuthenticated) {
@@ -67,6 +68,10 @@ router.beforeEach((to, from, next) => {
   }
 
   if (isAuthenticated && (to.name === 'login' || to.name === 'register')) {
+    return next({ name: 'home' });
+  }
+
+  if (to.path.startsWith('/admin') && role !== 'Admin') {
     return next({ name: 'home' });
   }
 

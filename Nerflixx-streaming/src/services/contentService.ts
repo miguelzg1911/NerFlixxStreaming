@@ -3,27 +3,27 @@ import type { Content } from '../types/types';
 
 export const contentService = {
     async getAllContent(): Promise<Content[]> {
-        const response = await api.get<Content[]>('/content');
+        const response = await api.get<Content[]>('/Content');
         return response.data;
     },
 
     async getContentByGenre(genre: string): Promise<Content[]> {
-        const response = await api.get<Content[]>(`/content/genre/${genre}`);
+        const response = await api.get<Content[]>(`/Content/genre/${genre}`);
         return response.data;
     },
 
     async getTrending(): Promise<Content[]> {
-        const response = await api.get<Content[]>('/content/trending');
+        const response = await api.get<Content[]>('/Content/trending');
         return response.data;
     },
 
     async getContentById(id: string): Promise<Content> {
-        const response = await api.get<Content>(`/content/${id}`);
+        const response = await api.get<Content>(`/Content/${id}`);
         return response.data;
     },
 
     async searchContent(query: string): Promise<Content[]> {
-        const response = await api.get<Content[]>(`/content/search?q=${query}`);
+        const response = await api.get<Content[]>(`/Content/search?q=${query}`);
         return response.data;
     }
 };

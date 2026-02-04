@@ -1,11 +1,13 @@
 <template>
   <div class="home-wrapper">
-    <NerNavbar />
+    <NerNavbarPro />
+    
+    <Billboard v-if="featuredMovie" :movie="featuredMovie" />
     
     <main class="content-area">
       <MovieRow title="Tendencias" fetchType="trending" />
-      <MovieRow title="Acción" fetchType="Action" />
-      <MovieRow title="Comedia" fetchType="Comedy" />
+      <MovieRow title="Acción" fetchType="genre" genre="Action" />
+      <MovieRow title="Comedia" fetchType="genre" genre="Comedy" />
     </main>
 
     <NerFooter />
@@ -28,9 +30,9 @@ const profileId = localStorage.getItem('selectedProfileId') || '';
 
 onMounted(async () => {
   try {
-    const trending = await contentService.getTrending();
-    if (trending.length > 0) {
-      featuredMovie.value = trending[0] as Content;
+    const trendingData = await contentService.getTrending();
+    if (Array.isArray(trendingData) && trendingData.length > 0) {
+      featuredMovie.value = trendingData[0] as Content;
     }
 
     if (profileId) {
