@@ -7,8 +7,8 @@ export const contentService = {
         return response.data;
     },
 
-    async getContentByGenre(genre: string): Promise<Content[]> {
-        const response = await api.get<Content[]>(`/Content/genre/${genre}`);
+    async getContentByGenre(genreName: string): Promise<Content[]> {
+        const response = await api.get(`/Content/genre/${genreName}`);
         return response.data;
     },
 

@@ -1,24 +1,35 @@
 <template>
-  <div class="watch-container">
+  <div class="watch-container" @mousemove="resetTimer">
     <nav :class="['watch-nav', { 'nav-hidden': !showControls }]">
       <div class="back-button" @click="$router.push('/')">
         <i class="fas fa-arrow-left"></i>
       </div>
-      <div class="movie-info" v-if="movie"> <span>Estás viendo:</span>
+      <div class="movie-info" v-if="movie"> 
+        <span>Estás viendo:</span>
         <h3>{{ movie.title }}</h3>
       </div>
     </nav>
 
-    <video 
-      v-if="movie"
-      class="video-player"
-      controls
-      autoplay
-      :src="movie.urlVideo"
-      @mousemove="resetTimer"
-    >
-      Tu navegador no soporta el elemento de video.
-    </video>
+    <div v-if="movie" class="player-wrapper">
+      <iframe 
+        v-if="isVimeo"
+        :src="`https://player.vimeo.com/video/${vimeoId}?autoplay=1&title=0&byline=0&portrait=0`"
+        class="video-player"
+        frameborder="0"
+        allow="autoplay; fullscreen; picture-in-picture"
+        allowfullscreen
+      ></iframe>
+
+      <video 
+        v-else
+        class="video-player"
+        controls
+        autoplay
+        :src="movie.urlVideo"
+      >
+        Tu navegador no soporta el elemento de video.
+      </video>
+    </div>
 
     <div v-else class="loading-screen">
       <div class="spinner"></div>
@@ -28,7 +39,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, onUnmounted } from 'vue';
+import { ref, onMounted, onUnmounted, computed } from 'vue';
 import { useRoute } from 'vue-router';
 import { contentService } from '@/services/contentService';
 import type { Content } from '@/types/types';
@@ -37,6 +48,19 @@ const route = useRoute();
 const movie = ref<Content | null>(null);
 const showControls = ref(true);
 let timer: any = null;
+
+// LÓGICA PARA DETECTAR VIMEO
+const isVimeo = computed(() => {
+  return movie.value?.urlVideo?.includes('vimeo.com');
+});
+
+const vimeoId = computed(() => {
+  if (!movie.value?.urlVideo) return '';
+  // Extrae el ID de formatos como: vimeo.com/835413342 o player.vimeo.com/video/835413342
+  const regExp = /vimeo\.com\/(?:video\/)?(\d+)/;
+  const match = movie.value.urlVideo.match(regExp);
+  return match ? match[1] : '';
+});
 
 const resetTimer = () => {
   showControls.value = true;
@@ -68,11 +92,13 @@ onUnmounted(() => {
     width: 100vw;
     overflow: hidden;
     position: relative;
+    cursor: default;
 }
 
 .video-player {
     width: 100%;
     height: 100%;
+    border: none;
     object-fit: contain;
 }
 
@@ -93,6 +119,11 @@ onUnmounted(() => {
 .nav-hidden {
     opacity: 0;
     cursor: none;
+}
+
+.player-wrapper {
+    width: 100%;
+    height: 100%;
 }
 
 .back-button {
