@@ -39,6 +39,7 @@ export interface Content {
     thumbnailUrl?: string;
     urlVideo?: string;
     durationMinutes?: number;
-    contentType?: number;
+    contentType?: number | string;
     genres?: string[];
+    releaseYear?: number;
 }

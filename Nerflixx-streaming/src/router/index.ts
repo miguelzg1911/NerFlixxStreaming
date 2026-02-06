@@ -54,6 +54,11 @@ const router = createRouter({
     {
       path: '/:pathMatch(.*)*',
       redirect: '/'
+    },
+    {
+      path: '/admin/edit/:id',
+      name: 'EditContent',
+      component: () => import('../views/browse/EditContentView.vue'),
     }
   ]
 })
